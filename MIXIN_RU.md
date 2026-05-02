@@ -15,13 +15,18 @@
 
 ### Этот пример (`MixinJavaAgentExample`)
 
-Используется **тот же набор целевых классов**, что и в `ClassTransformExample`, а миксины подключаются через:
+Используется **тот же набор целевых классов**, что и в `ClassTransformExample`. **Основной** сценарий — **`-javaagent`** с `Premain-Class` **`io.github.michael1297.agent.MixinDemoPremain`** в проектном JAR:
 
-1. **`net.minecraft.launchwrapper.Launch`** (артефакт `net.minecraft:launchwrapper:1.12` с `libraries.minecraft.net`, без LWJGL);
-2. кастомный tweaker **`io.github.michael1297.launch.MixinDemoTweaker`**, который вызывает `MixinBootstrap.start()` / `doInit` / `inject()` (для `start`/`inject` используется **рефлексия**, т.к. в Mixin 0.8.7 эти методы **package-private**, а размещение tweaker в пакете `org.spongepowered.asm.launch` даёт **`SecurityException` из‑за подписи JAR Mixin**);
-3. конфиг **`mixins.demo.json`** и манифест **`MixinConfigs: mixins.demo.json`** в проектном JAR.
+1. В `premain` рефлексией вызывается приватный конструктор **`net.minecraft.launchwrapper.Launch`**, чтобы появился непустой **`Launch.classLoader`** — иначе `MixinServiceLaunchWrapper.isValid()` ложен и Mixin не поднимется (см. SPI `IMixinService` в JAR Mixin: только LaunchWrapper и ModLauncher).
+2. Тем же кодом, что и для tweaker, вызывается **`MixinBootstrap`** (`start` → **`mixins.demo.json`** → `doInit` → `inject`) через **`io.github.michael1297.agent.MixinBootstrapHelper`** (рефлексия на `start`/`inject`: в 0.8.7 они **package-private**).
+3. Цепочка **`IClassTransformer`**, которую Mixin регистрирует на **`LaunchClassLoader`**, копируется в **`Instrumentation.addTransformer`** (**`LaunchWrapperTransformerBridge`**), потому что **`io.github.michael1297.Main`** и демо-классы грузятся **обычным** class loader приложения, а не через `Launch.main`. Мост вешается **до** `inject()`, иначе целевые классы могут успеть загрузиться «сырыми» при поднятии Mixin.
+4. Без глубокого стека `Launch.launch` подсистема остаётся в фазе **PREINIT**; после `inject()` вызывается рефлексия **`MixinEnvironment.gotoPhase`** для **INIT** и **DEFAULT** (в tweaker-режиме то же делает **`EnvironmentStateTweaker`**).
 
-Так вы получаете сопоставимое с ClassTransform-примером поведение **на старте JVM**, но точка входа — **Launch**, а не `Main` напрямую.
+Конфиг по-прежнему **`mixins.demo.json`**, в манифесте **`MixinConfigs`**.
+
+**Альтернатива без агента:** `run-mixin-launch.cmd` или вручную `net.minecraft.launchwrapper.Launch --tweakClass io.github.michael1297.launch.MixinDemoTweaker` — tweaker только делегирует в `MixinBootstrapHelper`.
+
+Встроенный в Mixin **`org.spongepowered.tools.agent.MixinAgent`** по-прежнему про **hot-swap / retransform** после уже поднятой подсистемы; для «как ClassTransform» здесь используется **свой** premain, а не `MixinAgent.premain`.
 
 ## Сборка и запуск
 
@@ -29,19 +34,21 @@
 mvn -q package
 ```
 
-Зависимости копируются в `target/lib/`. Запуск (Windows, одна строка):
+Зависимости копируются в `target/lib/`. Запуск с агентом (Windows):
 
 ```bat
-java -cp "target\MixinJavaAgentExample-1.0-SNAPSHOT.jar;target\lib\*" net.minecraft.launchwrapper.Launch --tweakClass io.github.michael1297.launch.MixinDemoTweaker
+java -javaagent:target\MixinJavaAgentExample-1.0-SNAPSHOT.jar -cp "target\MixinJavaAgentExample-1.0-SNAPSHOT.jar;target\lib\*" io.github.michael1297.Main
 ```
 
-Либо после `mvn compile` (когда все артефакты уже в локальном репозитории Maven):
+(удобнее: `run-mixin-demo.cmd` после `package`.)
+
+Через Maven нужен уже собранный JAR с манифестом агента:
 
 ```bash
-mvn -q compile exec:exec
+mvn -q package exec:exec
 ```
 
-(см. `exec-maven-plugin` в `pom.xml` — подставляет полный `-classpath` с Guava и остальными зависимостями).
+(`exec-maven-plugin` подставляет `-javaagent:${project.build.directory}/${project.build.finalName}.jar`, полный `-classpath` и `io.github.michael1297.Main`.)
 
 ## Соответствие ClassTransformExample
 

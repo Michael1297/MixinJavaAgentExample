@@ -52,11 +52,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>net.sf.jopt-simple</groupId>
-            <artifactId>jopt-simple</artifactId>
-            <version>4.5</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -86,6 +81,10 @@
                         </manifest>
                         <manifestEntries>
                             <MixinConfigs>mixins.demo.json</MixinConfigs>
+                            <Premain-Class>io.github.michael1297.agent.MixinDemoPremain</Premain-Class>
+                            <Agent-Class>io.github.michael1297.agent.MixinDemoPremain</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -114,13 +113,13 @@
                 <version>3.1.0</version>
                 <configuration>
                     <executable>java</executable>
-                    <classpathScope>compile</classpathScope>
+                    <!-- compile: иногда не даёт полный runtime classpath → NoClassDefFoundError (Gson) при Mixins.addConfiguration -->
+                    <classpathScope>runtime</classpathScope>
                     <arguments>
+                        <argument>-javaagent:${project.build.directory}/${project.build.finalName}.jar</argument>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>net.minecraft.launchwrapper.Launch</argument>
-                        <argument>--tweakClass</argument>
-                        <argument>io.github.michael1297.launch.MixinDemoTweaker</argument>
+                        <argument>io.github.michael1297.Main</argument>
                     </arguments>
                 </configuration>
             </plugin>
