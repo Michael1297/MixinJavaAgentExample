@@ -81,8 +81,8 @@
                         </manifest>
                         <manifestEntries>
                             <MixinConfigs>mixins.demo.json</MixinConfigs>
-                            <Premain-Class>io.github.michael1297.agent.MixinDemoPremain</Premain-Class>
-                            <Agent-Class>io.github.michael1297.agent.MixinDemoPremain</Agent-Class>
+                            <Premain-Class>io.github.michael1297.agent.MixinPremain</Premain-Class>
+                            <Agent-Class>io.github.michael1297.agent.MixinPremain</Agent-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>

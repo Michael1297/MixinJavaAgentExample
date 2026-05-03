@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * регистрируется в {@code Instrumentation} до {@code inject()}, чтобы классы, подгружаемые при bootstrap,
  * тоже проходили через цепочку.</p>
  */
-public final class MixinDemoPremain {
+public final class MixinPremain {
 
     private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
 
@@ -50,8 +50,8 @@ public final class MixinDemoPremain {
         }
         final LaunchWrapperTransformerBridge bridge = new LaunchWrapperTransformerBridge();
         inst.addTransformer(bridge, true);
-        MixinBootstrapHelper.startAndAddDemoConfig();
-        MixinBootstrapHelper.doInit(Collections.<String>emptyList());
+        MixinBootstrapHelper.startAndAddConfig();
+        MixinBootstrapHelper.doInit(Collections.emptyList());
         MixinBootstrapHelper.inject();
         MixinBootstrapHelper.gotoPhase(MixinEnvironment.Phase.INIT);
         MixinBootstrapHelper.gotoPhase(MixinEnvironment.Phase.DEFAULT);

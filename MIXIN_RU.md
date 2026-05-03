@@ -15,7 +15,7 @@
 
 ### Этот пример (`MixinJavaAgentExample`)
 
-Используется **тот же набор целевых классов**, что и в `ClassTransformExample`. **Основной** сценарий — **`-javaagent`** с `Premain-Class` **`io.github.michael1297.agent.MixinDemoPremain`** в проектном JAR:
+Используется **тот же набор целевых классов**, что и в `ClassTransformExample`. **Основной** сценарий — **`-javaagent`** с `Premain-Class` **`io.github.michael1297.agent.MixinPremain`** в проектном JAR:
 
 1. В `premain` рефлексией вызывается приватный конструктор **`net.minecraft.launchwrapper.Launch`**, чтобы появился непустой **`Launch.classLoader`** — иначе `MixinServiceLaunchWrapper.isValid()` ложен и Mixin не поднимется (см. SPI `IMixinService` в JAR Mixin: только LaunchWrapper и ModLauncher).
 2. Тем же кодом, что и для tweaker, вызывается **`MixinBootstrap`** (`start` → **`mixins.demo.json`** → `doInit` → `inject`) через **`io.github.michael1297.agent.MixinBootstrapHelper`** (рефлексия на `start`/`inject`: в 0.8.7 они **package-private**).

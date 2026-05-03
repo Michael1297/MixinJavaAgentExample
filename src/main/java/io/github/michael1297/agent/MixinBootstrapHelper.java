@@ -11,16 +11,16 @@ import java.util.List;
 
 /**
  * Общий холодный старт Mixin: {@code start} → конфиг → {@code doInit} → {@code inject}.
- * Вызывается из tweaker (Launch) или из {@link MixinDemoPremain premain}.
+ * Вызывается из tweaker (Launch) или из {@link MixinPremain premain}.
  */
 public final class MixinBootstrapHelper {
 
     private MixinBootstrapHelper() {
     }
 
-    public static void startAndAddDemoConfig() {
+    public static void startAndAddConfig() {
         invokeStaticNoArgs("start");
-        Mixins.addConfiguration("mixins.demo.json", (IMixinConfigSource) null);
+        Mixins.addConfiguration("mixin.config.json", (IMixinConfigSource) null);
     }
 
     public static void doInit(final List<String> args) {

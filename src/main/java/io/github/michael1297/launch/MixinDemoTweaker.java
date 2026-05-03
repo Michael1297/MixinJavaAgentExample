@@ -14,7 +14,7 @@ import java.util.List;
 public final class MixinDemoTweaker implements ITweaker {
 
     public MixinDemoTweaker() {
-        MixinBootstrapHelper.startAndAddDemoConfig();
+        MixinBootstrapHelper.startAndAddConfig();
     }
 
     @Override
