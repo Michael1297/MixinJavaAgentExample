@@ -50,6 +50,8 @@ mvn -q package exec:exec
 
 (`exec-maven-plugin` подставляет `-javaagent:${project.build.directory}/${project.build.finalName}.jar`, полный `-classpath` и `io.github.michael1297.Main`.)
 
+**Spring Boot:** [spring](./spring/) и запуск с агентом — [spring-agent](./spring-agent/).
+
 ## Соответствие ClassTransformExample
 
 | Идея | ClassTransform | Mixin (этот проект) |

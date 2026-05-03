@@ -2,3 +2,5 @@
 /.idea/
 *.iml
 logs
+/spring/target/
+/spring-agent/*.log
